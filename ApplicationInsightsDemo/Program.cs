@@ -1,11 +1,11 @@
 using ApplicationInsightsDemo;
-using Microsoft.ApplicationInsights.Extensibility;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApplicationInsightsTelemetry();
-builder.Services.AddSingleton<ITelemetryInitializer, ClientErrorTelemetryInitializer>();
-builder.Services.AddApplicationInsightsTelemetryProcessor<SuccessfulDependencyFilter>();
+builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddProcessor(new SuccessfulDependencyFilter()));
+builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddProcessor(new ClientErrorTelemetryInitializer()));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
