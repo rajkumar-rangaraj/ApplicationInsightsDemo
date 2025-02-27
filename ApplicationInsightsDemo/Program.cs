@@ -1,9 +1,10 @@
 using ApplicationInsightsDemo;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddOpenTelemetry().UseAzureMonitor();
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddProcessor(new SuccessfulDependencyFilter()));
 builder.Services.ConfigureOpenTelemetryTracerProvider((sp, builder) => builder.AddProcessor(new ClientErrorTelemetryInitializer()));
 
