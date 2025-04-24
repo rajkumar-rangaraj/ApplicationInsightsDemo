@@ -1,14 +1,15 @@
-﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.Extensibility;
+﻿using OpenTelemetry;
+using System.Diagnostics;
 
 namespace ApplicationInsightsDemo;
 
-public class ClientErrorTelemetryInitializer : ITelemetryInitializer
+public sealed class ClientErrorTelemetryInitializer : BaseProcessor<Activity>
 {
-    public void Initialize(ITelemetry telemetry)
+    public override void OnEnd(Activity activity)
     {
-        if (telemetry is RequestTelemetry requestTelemetry && int.TryParse(requestTelemetry.ResponseCode, out int code))
+        var requestTelemetry = activity.ToRequestTelemetry();
+
+        if (requestTelemetry != null && int.TryParse(requestTelemetry.ResponseCode, out int code))
         {
             if (code >= 400 && code < 500)
             {
@@ -16,5 +17,7 @@ public class ClientErrorTelemetryInitializer : ITelemetryInitializer
                 requestTelemetry.Properties["Overridden400s"] = "true";
             }
         }
+
+        base.OnEnd(activity);
     }
 }
